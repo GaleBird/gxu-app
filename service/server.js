@@ -4,7 +4,6 @@ const config = require("./config");
 const {
   buildUpdateView,
   fetchManifest,
-  isSupportedDownloadId,
   resolveDownloadTarget,
 } = require("./manifest-client");
 const { StatsStore } = require("./stats-store");
@@ -95,12 +94,14 @@ function routeDownloadCount(pathname) {
 }
 
 async function handleDownloadCount(res, downloadId) {
-  if (!isSupportedDownloadId(downloadId)) {
-    sendError(res, 404, "download target not found");
-    return;
-  }
   try {
-    await statsStore.increment(downloadId, downloadId, "app");
+    const update = await loadUpdateView();
+    const target = resolveDownloadTarget(update, downloadId);
+    if (!target) {
+      sendError(res, 404, "download target not found");
+      return;
+    }
+    await statsStore.increment(downloadId, target.id, "app");
     sendJson(res, 200, { ok: true });
   } catch (error) {
     sendError(res, 500, error.message);

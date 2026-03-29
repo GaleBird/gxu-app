@@ -12,12 +12,6 @@ const DOWNLOAD_MAP = [
   { id: "x86_64", label: "Android x86_64", keyword: "x86_64" },
   { id: "x86", label: "Android x86", keyword: "x86" },
 ];
-const DOWNLOAD_IDS = new Set([
-  ...DOWNLOAD_MAP.map((item) => item.id),
-  "android",
-  "github",
-]);
-
 async function fetchManifest() {
   const response = await fetch(config.updateManifestUrl, {
     signal: AbortSignal.timeout(config.requestTimeoutMs),
@@ -133,13 +127,8 @@ function resolveDownloadTarget(update, id) {
   return update.downloads.find((item) => item.id === id) || null;
 }
 
-function isSupportedDownloadId(id) {
-  return DOWNLOAD_IDS.has(id);
-}
-
 module.exports = {
   buildUpdateView,
   fetchManifest,
-  isSupportedDownloadId,
   resolveDownloadTarget,
 };
