@@ -1,6 +1,8 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
+const ALLOWED_SOURCES = new Set(["site", "app"]);
+
 class StatsStore {
   constructor(filePath) {
     this.filePath = filePath;
@@ -14,7 +16,15 @@ class StatsStore {
   async increment(routeKey, assetKey, source = "site") {
     return this.#enqueue(async () => {
       const stats = await this.#read();
-      stats.totalDownloads += 1;
+      if (!ALLOWED_SOURCES.has(source)) {
+        throw new Error(`unknown download source: ${source}`);
+      }
+      if (source === "site") {
+        stats.siteDownloads += 1;
+      } else if (source === "app") {
+        stats.appDownloads += 1;
+      }
+      stats.totalDownloads = stats.siteDownloads + stats.appDownloads;
       stats.routes[routeKey] = (stats.routes[routeKey] ?? 0) + 1;
       stats.assets[assetKey] = (stats.assets[assetKey] ?? 0) + 1;
       stats.sources[source] = (stats.sources[source] ?? 0) + 1;
@@ -51,8 +61,13 @@ class StatsStore {
   }
 
   #normalize(raw) {
+    const legacyTotal = Number.parseInt(raw.totalDownloads ?? 0, 10) || 0;
+    const siteDownloads = Number.parseInt(raw.siteDownloads ?? legacyTotal, 10) || 0;
+    const appDownloads = Number.parseInt(raw.appDownloads ?? 0, 10) || 0;
     return {
-      totalDownloads: Number.parseInt(raw.totalDownloads ?? 0, 10) || 0,
+      totalDownloads: siteDownloads + appDownloads,
+      siteDownloads,
+      appDownloads,
       routes: raw.routes && typeof raw.routes === "object" ? raw.routes : {},
       assets: raw.assets && typeof raw.assets === "object" ? raw.assets : {},
       sources: raw.sources && typeof raw.sources === "object" ? raw.sources : {},

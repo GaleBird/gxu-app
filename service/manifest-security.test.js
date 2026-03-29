@@ -89,3 +89,45 @@ test("assertManifestSignature fails loudly when required config is missing", () 
     /MANIFEST_PUBLIC_KEY_PEM is not configured/,
   );
 });
+
+test("verifyManifestSignature returns disabled status when no public key configured", () => {
+  const status = assertManifestSignature(
+    { tag_name: "v1.0.2+45" },
+    {
+      requireManifestSignature: false,
+      manifestSignatureKeyId: "test-key",
+      manifestPublicKeyPem: "",
+    },
+  );
+  assert.equal(status, undefined);
+});
+
+test("assertManifestSignature throws when enabled but not verified", () => {
+  const { publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  assert.throws(
+    () =>
+      assertManifestSignature(
+        { tag_name: "v1.0.2+45" },
+        {
+          requireManifestSignature: false,
+          manifestSignatureKeyId: "test-key",
+          manifestPublicKeyPem: publicKey.export({ type: "spki", format: "pem" }),
+        },
+      ),
+  );
+});
+
+test("canonicalizeSignedJson rejects excessively deep objects", () => {
+  let value = { leaf: true };
+  for (let i = 0; i < 100; i += 1) {
+    value = { next: value };
+  }
+  assert.throws(() => canonicalizeUnsignedManifest(value), /max depth/);
+});
+
+test("canonicalizeSignedJson rejects undefined values explicitly", () => {
+  assert.throws(
+    () => canonicalizeUnsignedManifest({ value: undefined }),
+    /encountered unsupported value/,
+  );
+});
