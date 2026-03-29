@@ -2,7 +2,6 @@ const FALLBACK_DOWNLOADS = [
   { id: "arm64-v8a", label: "Android arm64", href: "/download/arm64-v8a" },
   { id: "armeabi-v7a", label: "Android 32-bit", href: "/download/armeabi-v7a" },
   { id: "x86_64", label: "Android x86_64", href: "/download/x86_64" },
-  { id: "x86", label: "Android x86", href: "/download/x86" },
 ];
 
 const GALLERY_INTERVAL_MS = 3600;

@@ -90,7 +90,18 @@ function routeDownload(pathname) {
 
 function routeDownloadCount(pathname) {
   const match = /^\/api\/downloads\/([^/]+)\/count$/.exec(pathname);
-  return match ? decodeURIComponent(match[1]) : null;
+  if (!match) {
+    return { matched: false, downloadId: null, hasInvalidEncoding: false };
+  }
+  try {
+    return {
+      matched: true,
+      downloadId: decodeURIComponent(match[1]),
+      hasInvalidEncoding: false,
+    };
+  } catch {
+    return { matched: true, downloadId: null, hasInvalidEncoding: true };
+  }
 }
 
 async function handleDownloadCount(res, downloadId) {
@@ -112,13 +123,17 @@ function createHandler() {
   return async (req, res) => {
     const url = new URL(req.url ?? "/", "http://127.0.0.1");
     const method = req.method ?? "GET";
-    const trackedDownloadId = routeDownloadCount(url.pathname);
-    if (trackedDownloadId) {
+    const trackedDownloadRoute = routeDownloadCount(url.pathname);
+    if (trackedDownloadRoute.matched) {
+      if (trackedDownloadRoute.hasInvalidEncoding) {
+        sendError(res, 400, "invalid download target");
+        return;
+      }
       if (method !== "POST") {
         sendError(res, 405, "method not allowed");
         return;
       }
-      await handleDownloadCount(res, trackedDownloadId);
+      await handleDownloadCount(res, trackedDownloadRoute.downloadId);
       return;
     }
     const isHead = method === "HEAD";
