@@ -85,7 +85,7 @@ function normalizeDownloadItem(item, source) {
 
 function matchesDownloadKeyword(name, keyword) {
   const pattern = new RegExp(
-    `(^|[^a-z0-9])${escapeRegExp(keyword)}([^a-z0-9]|$)`,
+    `(^|[^a-z0-9_])${escapeRegExp(keyword)}([^a-z0-9_]|$)`,
   );
   return pattern.test(String(name ?? "").toLowerCase());
 }
