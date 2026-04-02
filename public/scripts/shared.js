@@ -36,6 +36,25 @@ const SIGNATURE_COPY = {
     message: "服务端执行验签时发生异常。",
   },
 };
+const DOWNLOAD_HINTS = {
+  "arm64-v8a": "默认推荐，多数手机直接选这个。",
+  "armeabi-v7a": "面向较旧的 32 位设备。",
+  x86_64: "主要用于模拟器或少量特殊设备。",
+  x86: "适用于少量旧版 x86 设备。",
+};
+const SITE_DATA_SELECTORS = [
+  "[data-site-version]",
+  "[data-site-summary]",
+  "[data-site-release-label]",
+  "[data-site-release-link]",
+  "[data-site-github-link]",
+  "[data-site-release-notes]",
+  "[data-site-note-count]",
+  "[data-site-download-total]",
+  "[data-site-download-matrix]",
+  "[data-site-signature-status]",
+  "[data-site-signature-message]",
+];
 
 function setText(selector, value) {
   document.querySelectorAll(selector).forEach((element) => {
@@ -65,10 +84,26 @@ function fetchJson(url) {
 
 function renderDownloadMatrix(downloads) {
   const items = downloads.length > 0 ? downloads : FALLBACK_DOWNLOADS;
-  const html = items.map((item) => `<a href="${item.href}">${item.label}</a>`).join("");
+  const html = items.map(buildDownloadLinkMarkup).join("");
   document.querySelectorAll("[data-site-download-matrix]").forEach((element) => {
     element.innerHTML = html;
   });
+}
+
+function buildDownloadLinkMarkup(item) {
+  const hint = getDownloadHint(item.id);
+  return [
+    `<a href="${item.href}">`,
+    '<span class="simple-item-copy">',
+    `<strong>${item.label}</strong>`,
+    hint ? `<span>${hint}</span>` : "",
+    "</span>",
+    "</a>",
+  ].join("");
+}
+
+function getDownloadHint(id) {
+  return DOWNLOAD_HINTS[id] || "";
 }
 
 function renderNotes(notes) {
@@ -85,7 +120,7 @@ function renderUpdate(update) {
   setText("[data-site-summary]", update.summary);
   setText("[data-site-release-label]", update.releaseLabel);
   setLink("[data-site-release-link]", update.releaseUrl, update.releaseLabel);
-  setLink("[data-site-github-link]", "/download/github", "GitHub 备用下载");
+  setLink("[data-site-github-link]", "/download/github", "GitHub 备用入口");
   renderNotes(update.notes);
   renderDownloadMatrix(update.downloads);
   renderSignature(update.signature);
@@ -220,11 +255,18 @@ function loadSiteData() {
   });
 }
 
+function shouldLoadSiteData() {
+  return SITE_DATA_SELECTORS.some((selector) => document.querySelector(selector));
+}
+
 function initSite() {
   document.body.classList.add("is-ready");
   markCurrentNav();
   setupRevealObserver();
   setupGallery();
+  if (!shouldLoadSiteData()) {
+    return;
+  }
   loadSiteData().catch((error) => {
     console.error(error);
     renderFailureState();

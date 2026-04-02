@@ -9,6 +9,7 @@ const {
 const { StatsStore } = require("./stats-store");
 
 const statsStore = new StatsStore(config.statsFile);
+const UNCOUNTED_DOWNLOAD_IDS = new Set(["github"]);
 
 function logSecurityMode() {
   if (config.manifestPublicKeyPem) {
@@ -71,7 +72,7 @@ async function handleDownload(res, downloadId, shouldCount) {
       sendError(res, 404, "download target not found");
       return;
     }
-    if (shouldCount) {
+    if (shouldCountDownload(downloadId, target.id, shouldCount)) {
       await statsStore.increment(downloadId, target.id, "site");
     }
     sendRedirect(res, target.url);
@@ -112,11 +113,24 @@ async function handleDownloadCount(res, downloadId) {
       sendError(res, 404, "download target not found");
       return;
     }
-    await statsStore.increment(downloadId, target.id, "app");
+    if (shouldTrackDownload(downloadId, target.id)) {
+      await statsStore.increment(downloadId, target.id, "app");
+    }
     sendJson(res, 200, { ok: true });
   } catch (error) {
     sendError(res, 500, error.message);
   }
+}
+
+function shouldCountDownload(downloadId, targetId, shouldCount) {
+  return shouldCount && shouldTrackDownload(downloadId, targetId);
+}
+
+function shouldTrackDownload(downloadId, targetId) {
+  return !(
+    UNCOUNTED_DOWNLOAD_IDS.has(downloadId) ||
+    UNCOUNTED_DOWNLOAD_IDS.has(targetId)
+  );
 }
 
 function createHandler() {
@@ -162,8 +176,24 @@ function createHandler() {
   };
 }
 
-const server = http.createServer(createHandler());
-logSecurityMode();
-server.listen(config.port, "127.0.0.1", () => {
-  console.log(`gxu.app service listening on http://127.0.0.1:${config.port}`);
-});
+function startServer() {
+  const server = http.createServer(createHandler());
+  logSecurityMode();
+  server.listen(config.port, "127.0.0.1", () => {
+    console.log(`gxu.app service listening on http://127.0.0.1:${config.port}`);
+  });
+  return server;
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = {
+  createHandler,
+  routeDownload,
+  routeDownloadCount,
+  shouldCountDownload,
+  shouldTrackDownload,
+  startServer,
+};
