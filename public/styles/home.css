@@ -302,6 +302,7 @@
   padding: 18px 18px 20px;
   overflow: hidden;
   position: relative;
+  cursor: pointer;
   background:
     radial-gradient(circle at 110% -8%, color-mix(in oklab, var(--ink) 7%, transparent), transparent 54%),
     linear-gradient(160deg, color-mix(in oklab, white 93%, var(--paper)) 0%, color-mix(in oklab, white 86%, var(--paper)) 100%);
@@ -322,6 +323,22 @@
   transform: translateY(-3px);
   border-color: var(--line-strong);
   box-shadow: 0 22px 54px color-mix(in oklab, var(--ink) 12%, transparent);
+}
+
+.feature-row:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--ink) 72%, white);
+  outline-offset: 3px;
+}
+
+.feature-row.is-active {
+  border-color: var(--ink);
+  box-shadow: 0 24px 58px color-mix(in oklab, var(--ink) 16%, transparent);
+  transform: translateY(-2px);
+}
+
+.feature-row.is-active::before {
+  width: 6px;
+  background: linear-gradient(180deg, var(--ink), color-mix(in oklab, var(--ink) 46%, white));
 }
 
 .feature-index {

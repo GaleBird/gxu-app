@@ -177,60 +177,99 @@ function setupRevealObserver() {
   items.forEach((element) => observer.observe(element));
 }
 
-function setupGallery() {
-  document.querySelectorAll("[data-gallery]").forEach((gallery) => {
-    const track = gallery.querySelector("[data-gallery-track]");
-    const slides = Array.from(gallery.querySelectorAll(".gallery-shot"));
-    const dots = Array.from(gallery.querySelectorAll(".gallery-dot"));
+function updateGalleryState(track, slides, dots, triggers, nextIndex) {
+  const currentIndex = (nextIndex + slides.length) % slides.length;
+  track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  slides.forEach((slide, index) => {
+    slide.classList.toggle("is-active", index === currentIndex);
+  });
+  dots.forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === currentIndex);
+    dot.setAttribute("aria-current", index === currentIndex ? "true" : "false");
+  });
+  triggers.forEach((trigger, index) => {
+    const isActive = index === currentIndex;
+    trigger.classList.toggle("is-active", isActive);
+    trigger.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+  return currentIndex;
+}
 
-    if (!track || slides.length === 0 || slides.length !== dots.length) {
-      throw new Error("Gallery markup is incomplete");
+function bindGalleryTrigger(element, handler) {
+  element.addEventListener("click", handler);
+  element.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handler();
     }
+  });
+}
 
-    let currentIndex = 0;
-    let timerId = 0;
+function validateGallery(track, slides, dots, triggers) {
+  if (!track || slides.length === 0 || slides.length !== dots.length) {
+    throw new Error("Gallery markup is incomplete");
+  }
+  if (triggers.length > 0 && triggers.length !== slides.length) {
+    throw new Error("Gallery triggers do not match slide count");
+  }
+}
 
-    const render = (nextIndex) => {
-      currentIndex = (nextIndex + slides.length) % slides.length;
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-      slides.forEach((slide, index) => {
-        slide.classList.toggle("is-active", index === currentIndex);
-      });
-      dots.forEach((dot, index) => {
-        dot.classList.toggle("is-active", index === currentIndex);
-        dot.setAttribute("aria-current", index === currentIndex ? "true" : "false");
-      });
-    };
+function bindGallerySelection(items, render, startTimer) {
+  items.forEach((item, index) => bindGalleryTrigger(item, () => {
+    render(index);
+    startTimer();
+  }));
+}
 
-    const stopTimer = () => {
-      if (timerId) {
-        window.clearInterval(timerId);
-        timerId = 0;
-      }
-    };
+function setupGalleryInstance(gallery) {
+  const showcase = gallery.closest(".feature-showcase") || document;
+  const track = gallery.querySelector("[data-gallery-track]");
+  const slides = Array.from(gallery.querySelectorAll(".gallery-shot"));
+  const dots = Array.from(gallery.querySelectorAll(".gallery-dot"));
+  const prevButton = gallery.querySelector("[data-gallery-prev]");
+  const nextButton = gallery.querySelector("[data-gallery-next]");
+  const triggers = Array.from(showcase.querySelectorAll("[data-gallery-trigger]"));
 
-    const startTimer = () => {
-      stopTimer();
-      timerId = window.setInterval(() => {
-        render(currentIndex + 1);
-      }, GALLERY_INTERVAL_MS);
-    };
+  validateGallery(track, slides, dots, triggers);
 
-    dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        render(index);
-        startTimer();
-      });
-    });
+  let currentIndex = 0;
+  let timerId = 0;
+  const render = (nextIndex) => {
+    currentIndex = updateGalleryState(track, slides, dots, triggers, nextIndex);
+  };
+  const stopTimer = () => {
+    if (!timerId) {
+      return;
+    }
+    window.clearInterval(timerId);
+    timerId = 0;
+  };
+  const startTimer = () => {
+    stopTimer();
+    timerId = window.setInterval(() => render(currentIndex + 1), GALLERY_INTERVAL_MS);
+  };
 
-    gallery.addEventListener("mouseenter", stopTimer);
-    gallery.addEventListener("mouseleave", startTimer);
-    gallery.addEventListener("focusin", stopTimer);
-    gallery.addEventListener("focusout", startTimer);
-
-    render(0);
+  bindGallerySelection(dots, render, startTimer);
+  bindGallerySelection(triggers, render, startTimer);
+  prevButton?.addEventListener("click", () => {
+    render(currentIndex - 1);
     startTimer();
   });
+  nextButton?.addEventListener("click", () => {
+    render(currentIndex + 1);
+    startTimer();
+  });
+  gallery.addEventListener("mouseenter", stopTimer);
+  gallery.addEventListener("mouseleave", startTimer);
+  gallery.addEventListener("focusin", stopTimer);
+  gallery.addEventListener("focusout", startTimer);
+
+  render(0);
+  startTimer();
+}
+
+function setupGallery() {
+  document.querySelectorAll("[data-gallery]").forEach(setupGalleryInstance);
 }
 
 function renderFailureState() {
