@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════
+   Pages — Sub-page styles (downloads, features, release)
+   ═══════════════════════════════════════════ */
+
 .page-copy,
 .page-art,
 .feature-copy-wrap,
@@ -78,21 +82,21 @@
   justify-content: space-between;
   gap: 12px;
   padding: 15px 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
 }
 
 .download-matrix a:first-child,
 .simple-downloads a:first-child,
 .simple-link-card:first-child,
 .simple-notes li:first-child {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
 .download-matrix a::after,
 .simple-downloads a::after,
 .simple-link-card::after {
-  content: "→";
-  color: var(--ink-faint);
+  content: "\2192";
+  color: var(--text-tertiary);
 }
 
 .feature-title {
@@ -116,7 +120,10 @@
 
 .simple-title {
   max-width: none;
+  font-family: "Bricolage Grotesque", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   font-size: clamp(3rem, 7vw, 4.4rem);
+  font-weight: 700;
+  line-height: 0.95;
   letter-spacing: -0.04em;
 }
 
@@ -125,7 +132,7 @@
   margin: 0;
   font-size: 1.02rem;
   line-height: 1.8;
-  color: color-mix(in oklab, var(--ink-soft) 88%, var(--ink));
+  color: var(--text-secondary);
 }
 
 .simple-head {
@@ -143,8 +150,8 @@
   margin: 18px 0 0;
   padding: 16px 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .simple-meta div {
@@ -154,14 +161,14 @@
 }
 
 .simple-meta div:not(:last-child) {
-  border-right: 1px solid color-mix(in oklab, var(--line) 86%, white);
+  border-right: 1px solid var(--border);
 }
 
 .simple-meta dt {
   font-size: var(--meta);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--text-tertiary);
 }
 
 .simple-meta dd {
@@ -174,7 +181,7 @@
 .simple-note,
 .simple-item-copy span,
 .simple-notes li {
-  color: var(--ink-soft);
+  color: var(--text-secondary);
   line-height: 1.7;
 }
 
@@ -210,12 +217,12 @@
 .simple-downloads a:hover,
 .simple-link-card:hover {
   transform: translateX(3px);
-  border-color: var(--line-strong);
+  border-color: var(--border-strong);
 }
 
 .simple-downloads a:focus-visible,
 .simple-link-card:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--line-strong) 90%, var(--ink));
+  outline: 2px solid var(--accent);
   outline-offset: 6px;
 }
 
@@ -272,7 +279,7 @@
   .simple-meta div:not(:last-child) {
     padding-bottom: 12px;
     border-right: 0;
-    border-bottom: 1px solid color-mix(in oklab, var(--line) 86%, white);
+    border-bottom: 1px solid var(--border);
   }
 
   .download-matrix a,

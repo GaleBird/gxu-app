@@ -1,94 +1,106 @@
-.action-row,
-.inline-data {
+/* ═══════════════════════════════════════════
+   Components — Buttons, surfaces, animations
+   ═══════════════════════════════════════════ */
+
+/* ── Action rows ── */
+.action-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
+  margin-top: 28px;
 }
 
-.action-row {
-  margin-top: 26px;
-}
-
+/* ── Buttons ── */
 .button,
 .button-secondary,
-.button-ghost,
-.inline-link {
+.button-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
-  padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  transition: transform 220ms ease, background-color 220ms ease, border-color 220ms ease;
-}
-
-.button:hover,
-.button-secondary:hover,
-.button-ghost:hover,
-.inline-link:hover {
-  transform: translateY(-1px);
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
 }
 
 .button {
-  background: var(--ink);
-  color: var(--paper);
-  box-shadow: var(--shadow);
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  box-shadow:
+    0 0 0 0 oklch(0.68 0.14 250 / 0),
+    var(--shadow-md);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 20px oklch(0.68 0.14 250 / 0.15),
+    var(--shadow-lg);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .button-secondary {
-  background: color-mix(in oklab, white 74%, var(--paper));
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
 }
 
-.button-ghost,
-.inline-link {
+.button-secondary:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+.button-ghost {
   background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
 }
 
-.jump-link,
-.inline-link {
-  width: fit-content;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--line);
+.button-ghost:hover {
+  color: var(--text);
+  background: var(--accent-soft);
 }
 
+/* ── Surfaces ── */
 .surface,
 .entry-card,
-.shot-frame,
 .flow-step,
 .detail-card,
 .footer-panel {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
-.surface,
-.flow-step,
-.detail-card,
-.footer-panel {
-  padding: var(--page-pad);
-}
-
-.stat-strip,
-.footer-grid,
-.release-notes,
-.detail-list,
-.info-grid,
-.flow-grid {
-  display: grid;
-  gap: 14px;
-}
-
+/* ── Stat strips ── */
 .stat-strip {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
   margin-top: 28px;
 }
 
 .mini-card {
   padding-top: 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
 .mini-card dd,
@@ -97,49 +109,53 @@
 }
 
 .large-stat {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
   font-size: clamp(1.7rem, 3vw, 2.8rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
 }
 
-.release-notes,
-.detail-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.release-notes li,
-.detail-list li {
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-
+/* ── Pills ── */
 .pill {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-  background: color-mix(in oklab, white 82%, var(--paper));
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  background: var(--surface);
 }
 
+/* ── Grids ── */
 .info-grid,
 .flow-grid {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .flow-step {
   min-height: 180px;
+  padding: clamp(1.2rem, 2vw, 1.8rem);
 }
 
 .number-badge {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
   font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  margin: 0;
 }
 
+/* ── Footer grid ── */
 .footer-grid {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .footer-panel strong,
@@ -153,10 +169,55 @@
   margin-bottom: 0;
 }
 
+/* ── Inline links ── */
+.jump-link,
+.inline-link {
+  width: fit-content;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: all 200ms ease;
+}
+
+.jump-link:hover,
+.inline-link:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* ── Shared text utilities ── */
+.lead,
+.section-copy,
+.feature-copy,
+.surface p,
+.release-notes li,
+.flow-step p,
+.site-footer p,
+.entry-copy,
+.download-copy,
+.detail-list li {
+  color: var(--text-secondary);
+  line-height: 1.72;
+}
+
+.lead {
+  max-width: 52ch;
+  margin: 16px 0 0;
+  font-size: 1.02rem;
+}
+
+.section-copy {
+  max-width: 60ch;
+  margin: 0;
+}
+
+/* ── Reveal animations ── */
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 520ms ease, transform 520ms ease;
+  transform: translateY(24px);
+  transition:
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .is-ready .reveal[data-visible="true"] {
@@ -164,8 +225,26 @@
   transform: translateY(0);
 }
 
+/* ── Release notes ── */
+.release-notes,
+.detail-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-notes li,
+.detail-list li {
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Responsive ── */
 @media (max-width: 980px) {
-  .stat-strip {
+  .stat-strip,
+  .info-grid,
+  .flow-grid,
+  .footer-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -175,5 +254,6 @@
   .action-row .button-secondary,
   .action-row .button-ghost {
     width: 100%;
+    justify-content: center;
   }
 }
