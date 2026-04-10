@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   Components — Buttons, surfaces, animations
+   Components — Monochrome & Geometric
    ═══════════════════════════════════════════ */
 
 /* ── Action rows ── */
@@ -7,7 +7,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 28px;
+  margin-top: 32px;
 }
 
 /* ── Buttons ── */
@@ -18,31 +18,29 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 42px;
   padding: 0 20px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-sm);
   border: 1px solid transparent;
   font: inherit;
   font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: all 180ms ease;
 }
 
 .button {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-  box-shadow:
-    0 0 0 0 oklch(0.68 0.14 250 / 0),
-    var(--shadow-md);
+  background: #000;
+  color: #fff;
+  border-color: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .button:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 0 20px oklch(0.68 0.14 250 / 0.15),
-    var(--shadow-lg);
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .button:active {
@@ -56,26 +54,28 @@
 }
 
 .button-secondary {
-  background: var(--surface);
-  border-color: var(--border);
+  background: #fff;
+  border-color: var(--border-strong);
   color: var(--text);
 }
 
 .button-secondary:hover {
-  border-color: var(--border-strong);
-  background: var(--surface-hover);
+  background: var(--bg-subtle);
+  border-color: var(--text);
   transform: translateY(-1px);
 }
 
 .button-ghost {
-  background: transparent;
-  border-color: transparent;
+  background: var(--surface);
+  border-color: var(--border);
   color: var(--text-secondary);
 }
 
 .button-ghost:hover {
   color: var(--text);
-  background: var(--accent-soft);
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 /* ── Surfaces ── */
@@ -85,7 +85,7 @@
 .detail-card,
 .footer-panel {
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-md);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
 }
@@ -94,8 +94,8 @@
 .stat-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 28px;
+  gap: 16px;
+  margin-top: 32px;
 }
 
 .mini-card {
@@ -105,28 +105,29 @@
 
 .mini-card dd,
 .large-stat {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
 
 .large-stat {
   font-family: "Bricolage Grotesque", system-ui, sans-serif;
-  font-size: clamp(1.7rem, 3vw, 2.8rem);
-  font-weight: 600;
-  line-height: 0.96;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.6rem, 2.8vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
 }
 
 /* ── Pills ── */
 .pill {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  padding: 0 12px;
+  min-height: 28px;
+  padding: 0 10px;
   border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  font-size: 0.84rem;
+  border-radius: var(--r-xs);
+  font-size: 0.82rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  background: var(--surface);
+  background: var(--bg-subtle);
 }
 
 /* ── Grids ── */
@@ -134,28 +135,28 @@
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .flow-step {
-  min-height: 180px;
-  padding: clamp(1.2rem, 2vw, 1.8rem);
+  min-height: 160px;
+  padding: 20px;
 }
 
 .number-badge {
   font-family: "Bricolage Grotesque", system-ui, sans-serif;
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  font-weight: 600;
-  line-height: 0.96;
-  letter-spacing: -0.03em;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
   margin: 0;
+  color: var(--text);
 }
 
 /* ── Footer grid ── */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .footer-panel strong,
@@ -163,6 +164,7 @@
 .download-title,
 .feature-title {
   font-size: var(--title);
+  color: var(--text);
 }
 
 .footer-panel p {
@@ -173,10 +175,11 @@
 .jump-link,
 .inline-link {
   width: fit-content;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border-strong);
   color: var(--text-secondary);
-  transition: all 200ms ease;
+  font-weight: 500;
+  transition: all 150ms ease;
 }
 
 .jump-link:hover,
@@ -197,13 +200,13 @@
 .download-copy,
 .detail-list li {
   color: var(--text-secondary);
-  line-height: 1.72;
+  line-height: 1.6;
 }
 
 .lead {
-  max-width: 52ch;
-  margin: 16px 0 0;
-  font-size: 1.02rem;
+  max-width: 50ch;
+  margin: 12px 0 0;
+  font-size: 1.05rem;
 }
 
 .section-copy {
@@ -214,10 +217,10 @@
 /* ── Reveal animations ── */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(16px);
   transition:
-    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 500ms ease,
+    transform 500ms ease;
 }
 
 .is-ready .reveal[data-visible="true"] {
@@ -235,7 +238,7 @@
 
 .release-notes li,
 .detail-list li {
-  padding-top: 14px;
+  padding: 12px 0;
   border-top: 1px solid var(--border);
 }
 
@@ -250,10 +253,16 @@
 }
 
 @media (max-width: 720px) {
+  .action-row {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
   .action-row .button,
   .action-row .button-secondary,
   .action-row .button-ghost {
-    width: 100%;
-    justify-content: center;
+    width: 80%;
+    margin: 0;
+    text-align: center;
   }
 }

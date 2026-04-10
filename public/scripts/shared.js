@@ -4,7 +4,7 @@ const FALLBACK_DOWNLOADS = [
   { id: "x86_64", label: "Android x86_64", href: "/download/x86_64" },
 ];
 
-const GALLERY_INTERVAL_MS = 3600;
+const GALLERY_INTERVAL_MS = 3200;
 const numberFormatter = new Intl.NumberFormat("zh-CN");
 const SIGNATURE_COPY = {
   verified: {
@@ -66,7 +66,31 @@ function setLink(selector, href, label) {
   document.querySelectorAll(selector).forEach((element) => {
     element.href = href;
     if (label) {
-      element.textContent = label;
+      const labelTarget = element.querySelector("[data-link-label]");
+      if (labelTarget) {
+        labelTarget.textContent = label;
+        return;
+      }
+
+      const directSpan = Array.from(element.children).find((child) => child.tagName === "SPAN");
+      if (directSpan) {
+        directSpan.textContent = label;
+        return;
+      }
+
+      const textNodes = Array.from(element.childNodes).filter(
+        (node) => node.nodeType === Node.TEXT_NODE,
+      );
+      const meaningfulTextNode = textNodes.find((node) => String(node.nodeValue ?? "").trim());
+      if (meaningfulTextNode) {
+        meaningfulTextNode.nodeValue = label;
+        textNodes.filter((node) => node !== meaningfulTextNode).forEach((node) => {
+          node.nodeValue = "";
+        });
+        return;
+      }
+
+      element.appendChild(document.createTextNode(label));
     }
   });
 }
@@ -83,23 +107,83 @@ function fetchJson(url) {
 }
 
 function renderDownloadMatrix(downloads) {
-  const items = downloads.length > 0 ? downloads : FALLBACK_DOWNLOADS;
-  const html = items.map(buildDownloadLinkMarkup).join("");
+  const items = normalizeDownloadItems(downloads);
   document.querySelectorAll("[data-site-download-matrix]").forEach((element) => {
-    element.innerHTML = html;
+    element.replaceChildren(...items.map(buildDownloadTile));
   });
 }
 
-function buildDownloadLinkMarkup(item) {
-  const hint = getDownloadHint(item.id);
-  return [
-    `<a href="${item.href}">`,
-    '<span class="simple-item-copy">',
-    `<strong>${item.label}</strong>`,
-    hint ? `<span>${hint}</span>` : "",
-    "</span>",
-    "</a>",
-  ].join("");
+const DOWNLOAD_TILE_ICONS = {
+  "arm64-v8a": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M12 2l4 4M12 2L8 6"/></svg>`,
+  "armeabi-v7a": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>`,
+  "x86_64": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>`,
+  "github": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
+};
+
+function normalizeDownloadItems(downloads) {
+  if (!Array.isArray(downloads)) {
+    throw new Error("downloads must be an array");
+  }
+  const items = downloads.length > 0 ? [...downloads] : [...FALLBACK_DOWNLOADS];
+
+  if (!items.some((item) => item?.id === "github")) {
+    items.push({ id: "github", label: "GitHub Releases", href: "/download/github" });
+  }
+
+  return items;
+}
+
+function assertNonEmptyString(value, context) {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`${context} must be a non-empty string`);
+  }
+  return value;
+}
+
+function assertRelativePath(href, context) {
+  const value = assertNonEmptyString(href, context);
+  if (!value.startsWith("/") || value.startsWith("//")) {
+    throw new Error(`${context} must be a relative path`);
+  }
+  return value;
+}
+
+function buildDownloadTile(item) {
+  const id = assertNonEmptyString(item?.id, "download id");
+  const label = assertNonEmptyString(item?.label, `download label (${id})`);
+  const href = assertRelativePath(item?.href, `download href (${id})`);
+  const hint = getDownloadHint(id);
+  const icon = DOWNLOAD_TILE_ICONS[id] || DOWNLOAD_TILE_ICONS["arm64-v8a"];
+  const actionLabel = id === "github" ? "跳转" : "下载";
+
+  const tile = document.createElement("a");
+  tile.className = "download-tile";
+  tile.href = href;
+
+  const tileIcon = document.createElement("div");
+  tileIcon.className = "tile-icon";
+  tileIcon.setAttribute("aria-hidden", "true");
+  tileIcon.innerHTML = icon;
+
+  const tileContent = document.createElement("div");
+  tileContent.className = "tile-content";
+
+  const strong = document.createElement("strong");
+  strong.textContent = label;
+  tileContent.appendChild(strong);
+
+  if (hint) {
+    const span = document.createElement("span");
+    span.textContent = hint;
+    tileContent.appendChild(span);
+  }
+
+  const tileAction = document.createElement("div");
+  tileAction.className = "tile-action";
+  tileAction.textContent = actionLabel;
+
+  tile.append(tileIcon, tileContent, tileAction);
+  return tile;
 }
 
 function getDownloadHint(id) {
@@ -107,10 +191,17 @@ function getDownloadHint(id) {
 }
 
 function renderNotes(notes) {
+  if (!Array.isArray(notes) || notes.some((item) => typeof item !== "string")) {
+    throw new Error("notes must be an array of strings");
+  }
   const items = notes.length > 0 ? notes : ["当前发布未附带额外更新说明。"];
-  const html = items.map((item) => `<li>${item}</li>`).join("");
   document.querySelectorAll("[data-site-release-notes]").forEach((element) => {
-    element.innerHTML = html;
+    const children = items.map((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      return li;
+    });
+    element.replaceChildren(...children);
   });
   setText("[data-site-note-count]", `${notes.length}`);
 }
@@ -119,7 +210,7 @@ function renderUpdate(update) {
   setText("[data-site-version]", update.version);
   setText("[data-site-summary]", update.summary);
   setText("[data-site-release-label]", update.releaseLabel);
-  setLink("[data-site-release-link]", update.releaseUrl, update.releaseLabel);
+  setLink("[data-site-release-link]", update.releaseUrl);
   setLink("[data-site-github-link]", "/download/github", "GitHub 备用入口");
   renderNotes(update.notes);
   renderDownloadMatrix(update.downloads);

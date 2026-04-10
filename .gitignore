@@ -1,2 +1,4 @@
 data/download-counts.json
 *.bak.*
+.playwright-mcp/
+CLAUDE.md
