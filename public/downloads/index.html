@@ -3,27 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="GXU 研课表下载页，集中提供 Android 主下载、分架构 APK 与备用下载入口。"
-    />
-    <meta name="theme-color" content="#08090c" />
+    <meta name="description" content="GXU 研课表安装包下载" />
+    <meta name="theme-color" content="#ffffff" />
     <title>下载 | GXU 研课表</title>
-    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="icon" type="image/png" href="/icon.png?v=20260409-final" />
+    <link rel="apple-touch-icon" href="/icon.png?v=20260409-final" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles/base.css" />
-    <link rel="stylesheet" href="/styles/pages.css?v=20260402-2002" />
+    <link rel="stylesheet" href="/styles/base.css?v=20260410-nav-rect" />
+    <link rel="stylesheet" href="/styles/pages.css?v=20260410-pages-rect-sync" />
   </head>
   <body data-page="downloads">
     <div class="site-shell">
       <header class="site-header">
         <a class="brand" href="/" aria-label="GXU 研课表首页">
-          <img class="brand-mark" src="/icon.png" alt="" />
+          <img class="brand-mark" src="/icon.png?v=20260409-final" alt="" />
           <div>
             <div class="brand-kicker">GXU Graduate Toolkit</div>
             <div class="brand-name">GXU 研课表</div>
@@ -38,66 +36,20 @@
       </header>
 
       <main class="page-main simple-page">
-        <section class="page-hero reveal simple-hero">
-          <p class="eyebrow">下载入口</p>
-          <h1 class="hero-title simple-title">下载</h1>
-          <p class="lead simple-lead">
-            默认下载当前版本的 Android arm64 安装包。需要其他架构时，再从下方选择。
-          </p>
-          <div class="action-row">
-            <a class="button" href="/download/android">下载 Android</a>
-            <a class="button-secondary" data-site-github-link href="/download/github"
-              >GitHub 备用下载</a
-            >
+        <section class="section reveal download-section">
+          <div class="download-grid-layout" data-site-download-matrix>
+            <!-- 由 shared.js 填充磁贴内容 -->
+            <div class="loading-placeholder">正在获取最新版本...</div>
           </div>
-          <dl class="simple-meta">
-            <div>
-              <dt>当前版本</dt>
-              <dd data-site-version>读取中</dd>
-            </div>
-            <div>
-              <dt>下载次数</dt>
-              <dd data-site-download-total>0</dd>
-            </div>
-            <div>
-              <dt>更新条目</dt>
-              <dd data-site-note-count>0</dd>
-            </div>
-          </dl>
-        </section>
 
-        <section class="section reveal simple-section" id="matrix">
-          <div class="section-head simple-head">
-            <p class="eyebrow">安装包</p>
-            <h2 class="section-title simple-section-title">可用下载</h2>
+          <div class="download-footer-note">
+            <div class="note-pill">安全校验</div>
+            <p>官网提供的所有安装包均经过签名校验，确保来源可靠。</p>
           </div>
-          <div class="simple-downloads" data-site-download-matrix>
-            <a href="/download/arm64-v8a">
-              <span class="simple-item-copy">
-                <strong>Android arm64</strong>
-                <span>默认推荐，多数手机直接选这个。</span>
-              </span>
-            </a>
-            <a href="/download/armeabi-v7a">
-              <span class="simple-item-copy">
-                <strong>Android 32-bit</strong>
-                <span>面向较旧的 32 位设备。</span>
-              </span>
-            </a>
-            <a href="/download/x86_64">
-              <span class="simple-item-copy">
-                <strong>Android x86_64</strong>
-                <span>主要用于模拟器或少量特殊设备。</span>
-              </span>
-            </a>
-          </div>
-          <p class="simple-note" data-site-summary>
-            官网、下载直链和版本说明保持同一来源。
-          </p>
         </section>
       </main>
     </div>
 
-    <script src="/scripts/shared.js?v=20260402-2025" defer></script>
+    <script src="/scripts/shared.js?v=20260409-unified-rect" defer></script>
   </body>
 </html>

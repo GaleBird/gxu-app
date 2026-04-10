@@ -3,24 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="GXU 研课表功能总览页。" />
-    <meta name="theme-color" content="#08090c" />
+    <meta name="description" content="GXU 研课表功能说明" />
+    <meta name="theme-color" content="#ffffff" />
     <title>功能 | GXU 研课表</title>
-    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="icon" type="image/png" href="/icon.png?v=20260409-final" />
+    <link rel="apple-touch-icon" href="/icon.png?v=20260409-final" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles/base.css" />
-    <link rel="stylesheet" href="/styles/pages.css?v=20260402-2002" />
+    <link rel="stylesheet" href="/styles/base.css?v=20260410-nav-rect" />
+    <link rel="stylesheet" href="/styles/pages.css?v=20260410-pages-rect-sync" />
   </head>
   <body data-page="features">
     <div class="site-shell">
       <header class="site-header">
         <a class="brand" href="/" aria-label="GXU 研课表首页">
-          <img class="brand-mark" src="/icon.png" alt="" />
+          <img class="brand-mark" src="/icon.png?v=20260409-final" alt="" />
           <div>
             <div class="brand-kicker">GXU Graduate Toolkit</div>
             <div class="brand-name">GXU 研课表</div>
@@ -35,35 +36,56 @@
       </header>
 
       <main class="page-main simple-page">
-        <section class="page-hero reveal simple-hero">
-          <p class="eyebrow">功能入口</p>
-          <h1 class="hero-title simple-title">功能</h1>
-          <p class="lead simple-lead">四个高频模块，按使用场景分别进入。</p>
-        </section>
+        <section class="section reveal">
+          <div class="download-grid-layout">
+            <a class="download-tile" href="/features/classtable.html">
+              <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              </div>
+              <div class="tile-content">
+                <strong>课表与日程</strong>
+                <span>今天的课、地点、周次切换。</span>
+              </div>
+              <div class="tile-action">详情</div>
+            </a>
 
-        <section class="section reveal simple-section">
-          <div class="simple-links">
-            <a class="simple-link-card" href="/features/classtable.html">
-              <strong>课表</strong>
-              <span>今天的课、地点、周次切换。</span>
+            <a class="download-tile" href="/features/scores.html">
+              <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              </div>
+              <div class="tile-content">
+                <strong>成绩与绩点</strong>
+                <span>成绩查询与课程计算。</span>
+              </div>
+              <div class="tile-action">详情</div>
             </a>
-            <a class="simple-link-card" href="/features/scores.html">
-              <strong>成绩</strong>
-              <span>成绩查询与课程计算。</span>
+
+            <a class="download-tile" href="/features/selection.html">
+              <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="tile-content">
+                <strong>选课情况</strong>
+                <span>学期筛选与课程列表。</span>
+              </div>
+              <div class="tile-action">详情</div>
             </a>
-            <a class="simple-link-card" href="/features/selection.html">
-              <strong>选课</strong>
-              <span>学期筛选与课程列表。</span>
-            </a>
-            <a class="simple-link-card" href="/features/network.html">
-              <strong>校园网</strong>
-              <span>流量、余额与刷新查询。</span>
+
+            <a class="download-tile" href="/features/network.html">
+              <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
+              </div>
+              <div class="tile-content">
+                <strong>校园网查询</strong>
+                <span>流量、余额与状态实时查询。</span>
+              </div>
+              <div class="tile-action">详情</div>
             </a>
           </div>
         </section>
       </main>
     </div>
 
-    <script src="/scripts/shared.js?v=20260402-2025" defer></script>
+    <script src="/scripts/shared.js?v=20260409-unified-rect" defer></script>
   </body>
 </html>
