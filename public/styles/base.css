@@ -1,5 +1,5 @@
-@import url("/styles/layout.css?v=20260410-safe-dom");
-@import url("/styles/components.css?v=20260410-safe-dom");
+@import url("/styles/layout.css?v=20260412-final-v2");
+@import url("/styles/components.css?v=20260412-final-v2");
 
 @supports (view-transition-name: root) {
   @view-transition {

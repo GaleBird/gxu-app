@@ -241,10 +241,22 @@ function renderSignature(signature) {
 
 function markCurrentNav() {
   const currentPage = document.body.dataset.page;
-  document.querySelectorAll("[data-nav-link]").forEach((element) => {
-    if (element.dataset.navLink === currentPage) {
-      element.classList.add("is-current");
+  console.log("Current body data-page:", currentPage);
+
+  const navLinks = document.querySelectorAll("[data-nav-link]");
+  console.log("Found nav links:", navLinks.length);
+
+  navLinks.forEach((element) => {
+    const linkType = element.dataset.navLink;
+    const isCurrent = linkType === currentPage;
+
+    console.log(`Checking link ${linkType} against ${currentPage}: ${isCurrent}`);
+
+    element.classList.toggle("is-current", isCurrent);
+    if (isCurrent) {
       element.setAttribute("aria-current", "page");
+    } else {
+      element.removeAttribute("aria-current");
     }
   });
 }
@@ -403,4 +415,9 @@ function initSite() {
   });
 }
 
-window.addEventListener("DOMContentLoaded", initSite);
+// 兼容某些情况下 DOMContentLoaded 已经触发的情况
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", initSite);
+} else {
+  initSite();
+}
