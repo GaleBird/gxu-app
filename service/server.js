@@ -192,8 +192,8 @@ function createHandler() {
 function startServer() {
   const server = http.createServer(createHandler());
   logSecurityMode();
-  server.listen(config.port, "127.0.0.1", () => {
-    console.log(`gxu.app service listening on http://127.0.0.1:${config.port}`);
+  server.listen(config.port, config.host, () => {
+    console.log(`gxu.app service listening on http://${config.host}:${config.port}`);
   });
   return server;
 }

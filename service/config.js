@@ -42,6 +42,7 @@ function normalizePem(value) {
 
 module.exports = {
   port: resolvePort(),
+  host: process.env.HOST || "127.0.0.1",
   requestTimeoutMs: REQUEST_TIMEOUT_MS,
   updateManifestUrl: process.env.UPDATE_MANIFEST_URL || DEFAULT_MANIFEST_URL,
   statsFile: process.env.STATS_FILE || DEFAULT_STATS_FILE,
