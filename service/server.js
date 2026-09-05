@@ -56,6 +56,15 @@ async function handleUpdate(res) {
   }
 }
 
+async function handleManifest(res) {
+  try {
+    const { manifest } = await fetchManifest();
+    sendJson(res, 200, manifest);
+  } catch (error) {
+    sendError(res, 502, error.message);
+  }
+}
+
 async function handleStats(res) {
   try {
     sendJson(res, 200, await statsStore.snapshot());
@@ -161,6 +170,10 @@ function createHandler() {
     }
     if (url.pathname === "/api/update") {
       await handleUpdate(res);
+      return;
+    }
+    if (url.pathname === "/api/manifest") {
+      await handleManifest(res);
       return;
     }
     if (url.pathname === "/api/stats") {
