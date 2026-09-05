@@ -2,6 +2,7 @@ const path = require("node:path");
 
 const DEFAULT_PORT = 9080;
 const REQUEST_TIMEOUT_MS = 12000;
+const DEFAULT_MANIFEST_CACHE_TTL_MS = 60000;
 const DEFAULT_MANIFEST_URL =
   "https://myapk.sgp1.cdn.digitaloceanspaces.com/manifests/update.json";
 const DEFAULT_ALLOWED_DOWNLOAD_HOSTS = [
@@ -19,6 +20,11 @@ const DEFAULT_STATS_FILE = path.join(
 function resolvePort() {
   const parsed = Number.parseInt(process.env.PORT ?? "", 10);
   return Number.isNaN(parsed) ? DEFAULT_PORT : parsed;
+}
+
+function resolvePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 }
 
 function parseCsv(value, fallback) {
@@ -44,6 +50,10 @@ module.exports = {
   port: resolvePort(),
   host: process.env.HOST || "127.0.0.1",
   requestTimeoutMs: REQUEST_TIMEOUT_MS,
+  manifestCacheTtlMs: resolvePositiveInt(
+    process.env.MANIFEST_CACHE_TTL_MS,
+    DEFAULT_MANIFEST_CACHE_TTL_MS,
+  ),
   updateManifestUrl: process.env.UPDATE_MANIFEST_URL || DEFAULT_MANIFEST_URL,
   statsFile: process.env.STATS_FILE || DEFAULT_STATS_FILE,
   allowedDownloadHosts: parseCsv(

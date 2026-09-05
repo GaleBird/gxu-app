@@ -12,17 +12,37 @@ const DOWNLOAD_MAP = [
   { id: "x86_64", label: "Android x86_64", keyword: "x86_64" },
   { id: "x86", label: "Android x86", keyword: "x86" },
 ];
+// Short in-memory cache: keeps the app-facing /api/manifest fast and lets the
+// route survive upstream slowness/outages by serving the last good manifest.
+const cache = { data: null, fetchedAt: 0 };
+
 async function fetchManifest() {
-  const response = await fetch(config.updateManifestUrl, {
-    signal: AbortSignal.timeout(config.requestTimeoutMs),
-    headers: { Accept: "application/json" },
-  });
-  if (!response.ok) {
-    throw new Error(`manifest returned ${response.status}`);
+  if (
+    cache.data &&
+    Date.now() - cache.fetchedAt < config.manifestCacheTtlMs
+  ) {
+    return cache.data;
   }
-  const manifest = await response.json();
-  const signature = verifyManifestSignature(manifest, config);
-  return { manifest, signature };
+  try {
+    const response = await fetch(config.updateManifestUrl, {
+      signal: AbortSignal.timeout(config.requestTimeoutMs),
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error(`manifest returned ${response.status}`);
+    }
+    const manifest = await response.json();
+    const signature = verifyManifestSignature(manifest, config);
+    const result = { manifest, signature };
+    cache.data = result;
+    cache.fetchedAt = Date.now();
+    return result;
+  } catch (error) {
+    if (cache.data) {
+      return cache.data;
+    }
+    throw error;
+  }
 }
 
 function normalizeVersionTag(rawTag) {
