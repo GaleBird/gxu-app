@@ -10,6 +10,10 @@ function mockFetch(handler) {
   globalThis.fetch = async () => handler();
 }
 
+function tick() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 after(() => {
   globalThis.fetch = originalFetch;
   config.manifestCacheTtlMs = originalTtl;
@@ -48,20 +52,58 @@ test("fetchManifest caches a successful fetch", async () => {
   assert.equal(second.manifest.tag_name, "v1.0.7+51");
 });
 
-test("fetchManifest serves the cached manifest when upstream fails", async () => {
+test("fetchManifest serves the cached manifest when the upstream fails", async () => {
+  config.manifestCacheTtlMs = 0; // force the stale path
   mockFetch(() => Promise.reject(new Error("upstream down")));
   const result = await fetchManifest();
   assert.equal(result.manifest.tag_name, "v1.0.7+51");
+  await tick(); // let the background refresh fail
+  const again = await fetchManifest();
+  assert.equal(again.manifest.tag_name, "v1.0.7+51");
 });
 
-test("fetchManifest refreshes after the cache TTL expires", async () => {
+test("fetchManifest serves stale data immediately and refreshes in the background", async () => {
   config.manifestCacheTtlMs = 0;
-  mockFetch(() =>
-    Promise.resolve({
+  let calls = 0;
+  mockFetch(() => {
+    calls += 1;
+    return Promise.resolve({
       ok: true,
       json: () => Promise.resolve(manifestB),
-    }),
-  );
+    });
+  });
+  const stale = await fetchManifest();
+  assert.equal(stale.manifest.tag_name, "v1.0.7+51");
+  await tick(); // let the background refresh land
+  assert.equal(calls, 1);
+  const refreshed = await fetchManifest();
+  assert.equal(refreshed.manifest.tag_name, "v1.0.8+52");
+});
+
+test("concurrent stale callers share one background refresh", async () => {
+  config.manifestCacheTtlMs = 0;
+  let calls = 0;
+  mockFetch(() => {
+    calls += 1;
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(manifestA),
+    });
+  });
+  const results = await Promise.all([
+    fetchManifest(),
+    fetchManifest(),
+    fetchManifest(),
+  ]);
+  assert.ok(results.every((item) => item.manifest.tag_name === "v1.0.8+52"));
+  assert.equal(calls, 1);
+});
+
+test("stale responses stay instant even when the upstream hangs", async () => {
+  config.manifestCacheTtlMs = 0;
+  mockFetch(() => new Promise(() => {})); // never settles
+  const started = Date.now();
   const result = await fetchManifest();
-  assert.equal(result.manifest.tag_name, "v1.0.8+52");
+  assert.ok(Date.now() - started < 100);
+  assert.equal(result.manifest.tag_name, "v1.0.7+51");
 });

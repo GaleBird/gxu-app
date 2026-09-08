@@ -14,35 +14,46 @@ const DOWNLOAD_MAP = [
 ];
 // Short in-memory cache: keeps the app-facing /api/manifest fast and lets the
 // route survive upstream slowness/outages by serving the last good manifest.
-const cache = { data: null, fetchedAt: 0 };
+// Stale entries are answered immediately while a single background refresh
+// runs, because the edge worker in front of this service aborts origin
+// requests after ~4s and a synchronous upstream fetch must never block a
+// response once any verified manifest is cached.
+const cache = { data: null, fetchedAt: 0, refresh: null };
+
+function refreshManifestCache() {
+  if (!cache.refresh) {
+    cache.refresh = (async () => {
+      const response = await fetch(config.updateManifestUrl, {
+        signal: AbortSignal.timeout(config.requestTimeoutMs),
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(`manifest returned ${response.status}`);
+      }
+      const manifest = await response.json();
+      const signature = verifyManifestSignature(manifest, config);
+      cache.data = { manifest, signature };
+      cache.fetchedAt = Date.now();
+    })().finally(() => {
+      cache.refresh = null;
+    });
+  }
+  return cache.refresh;
+}
 
 async function fetchManifest() {
-  if (
-    cache.data &&
-    Date.now() - cache.fetchedAt < config.manifestCacheTtlMs
-  ) {
-    return cache.data;
-  }
-  try {
-    const response = await fetch(config.updateManifestUrl, {
-      signal: AbortSignal.timeout(config.requestTimeoutMs),
-      headers: { Accept: "application/json" },
-    });
-    if (!response.ok) {
-      throw new Error(`manifest returned ${response.status}`);
-    }
-    const manifest = await response.json();
-    const signature = verifyManifestSignature(manifest, config);
-    const result = { manifest, signature };
-    cache.data = result;
-    cache.fetchedAt = Date.now();
-    return result;
-  } catch (error) {
-    if (cache.data) {
+  if (cache.data) {
+    if (Date.now() - cache.fetchedAt < config.manifestCacheTtlMs) {
       return cache.data;
     }
-    throw error;
+    // Stale but usable: answer from cache and revalidate in the background.
+    refreshManifestCache().catch((error) => {
+      console.warn(`manifest background refresh failed: ${error.message}`);
+    });
+    return cache.data;
   }
+  // Cold start: the first caller pays the upstream fetch (shared in-flight).
+  return refreshManifestCache().then(() => cache.data);
 }
 
 function normalizeVersionTag(rawTag) {

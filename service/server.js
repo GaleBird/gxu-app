@@ -194,6 +194,11 @@ function startServer() {
   logSecurityMode();
   server.listen(config.port, config.host, () => {
     console.log(`gxu.app service listening on http://${config.host}:${config.port}`);
+    // Warm the manifest cache at boot so the first request after a restart
+    // does not have to wait for the upstream fetch.
+    fetchManifest().catch((error) => {
+      console.warn(`manifest prewarm failed: ${error.message}`);
+    });
   });
   return server;
 }
