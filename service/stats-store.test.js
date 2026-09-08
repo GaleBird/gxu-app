@@ -36,3 +36,30 @@ test("StatsStore.increment rejects unknown sources", async () => {
   );
 });
 
+test("StatsStore recovers from a corrupt file using the backup", async () => {
+  const filePath = await createTempStatsFile();
+  const store = new StatsStore(filePath);
+
+  const first = await store.increment("download/arm64", "asset-1", "site");
+  await fs.writeFile(filePath, "{ truncated", "utf8");
+
+  const second = await store.increment("download/arm64", "asset-1", "site");
+  assert.equal(second.siteDownloads, 2);
+  assert.equal(second.totalDownloads, first.totalDownloads + 1);
+
+  const healed = JSON.parse(await fs.readFile(filePath, "utf8"));
+  assert.equal(healed.siteDownloads, 2);
+});
+
+test("StatsStore starts fresh when the file is corrupt and no backup exists", async () => {
+  const filePath = await createTempStatsFile();
+  await fs.writeFile(filePath, "not json", "utf8");
+  const store = new StatsStore(filePath);
+
+  const after = await store.increment("download/arm64", "asset-1", "app");
+  assert.equal(after.appDownloads, 1);
+  assert.equal(after.totalDownloads, 1);
+
+  const healed = JSON.parse(await fs.readFile(filePath, "utf8"));
+  assert.equal(healed.appDownloads, 1);
+});

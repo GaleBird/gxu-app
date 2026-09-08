@@ -188,6 +188,12 @@
   color: #991b1b;
 }
 
+.signature-chip[data-signature-state="unreachable"] {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
 .signature-row {
   display: flex;
   align-items: center;

@@ -35,6 +35,10 @@ const SIGNATURE_COPY = {
     label: "校验失败",
     message: "服务端执行验签时发生异常。",
   },
+  unreachable: {
+    label: "清单不可达",
+    message: "当前无法读取线上清单，暂时无法判断签名状态。",
+  },
 };
 const DOWNLOAD_HINTS = {
   "arm64-v8a": "默认推荐，多数手机直接选这个。",
@@ -384,10 +388,7 @@ function renderFailureState() {
   setLink("[data-site-release-link]", "/download/github", "备用下载");
   renderDownloadMatrix([]);
   renderNotes([]);
-  renderSignature({
-    status: "verification_error",
-    message: "当前无法读取线上清单，暂时无法判断签名状态。",
-  });
+  renderSignature({ status: "unreachable" });
 }
 
 function loadSiteData() {

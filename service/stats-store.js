@@ -6,6 +6,7 @@ const ALLOWED_SOURCES = new Set(["site", "app"]);
 class StatsStore {
   constructor(filePath) {
     this.filePath = filePath;
+    this.backupPath = `${filePath}.bak`;
     this.queue = Promise.resolve();
   }
 
@@ -41,23 +42,41 @@ class StatsStore {
 
   async #read() {
     try {
-      const raw = await fs.readFile(this.filePath, "utf8");
-      return this.#normalize(JSON.parse(raw));
+      return await this.#readState(this.filePath);
     } catch (error) {
       if (error.code === "ENOENT") {
         return this.#normalize({});
       }
-      throw error;
+      // A corrupt stats file must not take the download routes down with it:
+      // fall back to the rolling backup, then to an empty state. The next
+      // write heals the main file.
+      console.warn(`stats file unreadable: ${error.message}; falling back to backup`);
+      try {
+        return await this.#readState(this.backupPath);
+      } catch {
+        return this.#normalize({});
+      }
     }
+  }
+
+  async #readState(filePath) {
+    const raw = await fs.readFile(filePath, "utf8");
+    return this.#normalize(JSON.parse(raw));
   }
 
   async #write(stats) {
     await fs.mkdir(path.dirname(this.filePath), { recursive: true });
-    await fs.writeFile(
-      this.filePath,
-      `${JSON.stringify(stats, null, 2)}\n`,
-      "utf8",
-    );
+    // Swap through a temp file so a crash mid-write can never leave a
+    // truncated JSON behind, then refresh the backup from the verified-good
+    // main file (never from a possibly-corrupt one).
+    const tempPath = `${this.filePath}.tmp`;
+    await fs.writeFile(tempPath, `${JSON.stringify(stats, null, 2)}\n`, "utf8");
+    await fs.rename(tempPath, this.filePath);
+    try {
+      await fs.copyFile(this.filePath, this.backupPath);
+    } catch {
+      // Backup is best effort.
+    }
   }
 
   #normalize(raw) {
